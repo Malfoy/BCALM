@@ -10,6 +10,7 @@
 #include "ograph.h"
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <cmath>
 
 /*
  * Constuct the compacted de bruijn graph from list of distinct kmers
@@ -383,7 +384,7 @@ void goodplace(const string& node,int k, const string& bucketname,vector<pair<in
 pair<uint,uint> compactbucket(const string prefix,const string suffix,const int k,const char *nameout,const int m)
 {
 	int64_t sizebucket(0),nbnode(0),buffsize(2*k),postags(0),length;
-	int tagnumber(0);
+	long long tagnumber(0);
 	string fullname(prefix+suffix),node,tag,end;
 	auto count(countbucket(fullname));
 	if(count.size()==0)
