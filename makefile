@@ -1,6 +1,6 @@
 CC=g++
 CFLAGS=-W -Wall -O3 -std=c++0x
-LDFLAGS=-pg
+LDFLAGS=
 EXEC=bcalm
 
 all: $(EXEC)
