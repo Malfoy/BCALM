@@ -1,0 +1,11 @@
+Idea Optimisation:
+-Regroup smalls buckets &| superbuckets
+-Give oftream superbucket to compact
+-In superbucket write minimiser before node to avoid compute it again
+-In superbucket/bucket write size of node before node
+-Use table to optimise output
+-Graphe construction
+-Multithread minimiser calcul
+-Hashtable minimiser
+-Open/Close 
+-2bit/nuc
