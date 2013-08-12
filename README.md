@@ -5,7 +5,7 @@ de Bruijn CompAction in Low Memory
 
 Possible use :
 
-./bcalm
+./bcalm \n
 Launch a small test on a random genome
 
 ./bcalm n
