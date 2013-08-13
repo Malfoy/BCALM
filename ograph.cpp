@@ -86,7 +86,7 @@ void graph::addvertex(string str)
 {
 	n++;
 	nodes.push_back(str);
-	uint i(nodes.size()-1);
+	unsigned int i(nodes.size()-1);
 	uint64_t key(getkey(str));
 	map.insert({key,i});
 }
@@ -95,7 +95,7 @@ void graph::addvertex(string str)
 
 void graph::debruijn()
 {
-	vector<uint> empty;
+	vector<unsigned int> empty;
 	neighbor=vector<neighbour> (n);
 	string node,kmmer;
 	uint64_t key;

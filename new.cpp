@@ -703,10 +703,8 @@ void goodplace(const string& node,int k, const string bucketname,ofstream* out,v
 }
 
 //Compact a bucket and put the nodes on the right place
-pair<uint,uint> compactbucket(const string prefix,const string suffix,const int k,const char *nameout,const int m)
+void compactbucket(const string prefix,const string suffix,const int k,const char *nameout,const int m)
 {
-	uint sizebucket=0;
-	uint nbnode=0;
 	int buffsize=k;
 	string fullname=prefix+suffix;
 	auto count=countbucket(fullname);

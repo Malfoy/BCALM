@@ -381,16 +381,16 @@ void goodplace(const string& node,int k, const string& bucketname,vector<pair<in
 
 
 //Compact a bucket and put the nodes on the right place
-pair<uint,uint> compactbucket(const string prefix,const string suffix,const int k,const char *nameout,const int m)
+void compactbucket(const string prefix,const string suffix,const int k,const char *nameout,const int m)
 {
-	int64_t sizebucket(0),nbnode(0),buffsize(2*k),postags(0),length;
+	int64_t buffsize(2*k),postags(0),length;
 	long long tagnumber(0);
 	string fullname(prefix+suffix),node,tag,end;
 	auto count(countbucket(fullname));
 	if(count.size()==0)
 	{
 		remove((".bcalmtmp/"+fullname).c_str());
-		return make_pair(sizebucket,nbnode);
+		return;
 	}
 	ifstream in(".bcalmtmp/"+fullname);
 	ofstream tagfile(".bcalmtmp/tags"),out(".bcalmtmp/"+(string)nameout,ios_base::app);
@@ -406,8 +406,6 @@ pair<uint,uint> compactbucket(const string prefix,const string suffix,const int 
 			{
 				node=readn(&in,length+1);
 				g->addvertex(node.substr(0,length));
-				sizebucket+=length;
-				nbnode++;
 			}
 			else
 			{
@@ -421,8 +419,6 @@ pair<uint,uint> compactbucket(const string prefix,const string suffix,const int 
 				end=readn(&in,buffsize+1);
 				node+=end.substr(0,buffsize);
 				g->addvertex(node);
-				sizebucket+=node.size();
-				nbnode++;
 			}
 		}
 		tagfile.close();
@@ -438,7 +434,7 @@ pair<uint,uint> compactbucket(const string prefix,const string suffix,const int 
 	
 	delete g;
 	remove(".bcalmtmp/tags");
-	return make_pair(sizebucket,nbnode);
+	return;
 }
 
 //Create a file with the nodes of the compacted graph
