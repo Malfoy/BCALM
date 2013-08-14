@@ -356,26 +356,17 @@ void goodplace(const string& node,int k, const string& bucketname,vector<pair<in
 	string suffix(bucketname.substr(0,m)),next(nextstring(suffix)),begin(m,'a');
 	if(next==begin)
 		next=suffix+"ttttttt";
-	
 	string leftminimiser(minimalsub(node,2*m,k)),rightminimiser(minimalsub2(node,2*m,k));
-	string leftprefix('z'+leftminimiser.substr(0,m)),rightprefix('z'+rightminimiser.substr(0,m));
+	string minimum(min(leftminimiser,rightminimiser)),maximum(max(leftminimiser,rightminimiser));
+	string minprefix('z'+minimum.substr(0,m)),maxprefix('z'+maximum.substr(0,m));
 	
-	if(leftminimiser<rightminimiser)
-		if(leftminimiser>bucketname)
-			putorwrite( ((leftminimiser>=next) ? leftprefix : leftminimiser), node,tagsposition,tagfile,nameout);
-		else
-			if(rightminimiser>bucketname)
-				putorwrite( ((rightminimiser>=next) ? rightprefix : rightminimiser), node,tagsposition,tagfile,nameout);
-			else
-				putorwrite( nameout, node,tagsposition,tagfile,nameout);
+	if(minimum>bucketname)
+		putorwrite( ((minimum>=next) ? minprefix : minimum), node,tagsposition,tagfile,nameout);
 	else
-		if(rightminimiser>bucketname)
-			putorwrite( ((rightminimiser>=next) ? rightprefix : rightminimiser), node,tagsposition,tagfile,nameout);
+		if(maximum>bucketname)
+			putorwrite( ((maximum>=next) ? maxprefix : maximum), node,tagsposition,tagfile,nameout);
 		else
-			if(leftminimiser>bucketname)
-				putorwrite( ((leftminimiser>=next) ? leftprefix : leftminimiser), node,tagsposition,tagfile,nameout);
-			else
-				putorwrite( nameout, node,tagsposition,tagfile,nameout);
+			putorwrite( nameout, node,tagsposition,tagfile,nameout);
 }
 
 
