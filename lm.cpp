@@ -11,6 +11,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <cmath>
+#include <algorithm>
+#include <chrono>
 
 /*
  * Constuct the compacted de bruijn graph from list of distinct kmers
@@ -20,11 +22,9 @@ using namespace std;
 
 
 
-int stringtointb(const string& str)
-{
+int stringtointb(const string& str){
 	int res(0);
-	for(uint64_t i(0);i<str.size();i++)
-	{
+	for(uint64_t i(0);i<str.size();i++){
 		res<<=2;
 		res+=chartoint(str[i]);
 	}
@@ -33,17 +33,8 @@ int stringtointb(const string& str)
 
 
 
-string minbutbiggerthan(const string& minimiser1,const string& minimiser2,string namebucket)
-{
-	return (minimiser1<minimiser2) ? ((minimiser1<namebucket) ? minimiser2 : minimiser1) : ((minimiser2<namebucket) ? minimiser1 : minimiser2);
-}
-
-
-
-bool nextchar(char * c)
-{
-	switch(*c)
-	{
+bool nextchar(char * c){
+	switch(*c){
 		case 'a':
 		*c='c';
 		return true;
@@ -64,12 +55,10 @@ bool nextchar(char * c)
 
 
 
-string nextstring(string s)
-{
+string nextstring(string s){
 	int i(0),size(s.size());
 	bool again(true);
-	while(again && i!=size)
-	{
+	while(again && i!=size)	{
 		if(nextchar(&s[size-i-1]))
 			again=false;
 		i++;
@@ -80,8 +69,7 @@ string nextstring(string s)
 
 
 //return minimiser
-string minimiser(const string &node,const int &minimisersize)
-{
+string minimiser(const string &node,const int &minimisersize){
 	string minimiser(node.substr(0,minimisersize));
 	for(uint64_t i(1);i<node.size()-minimisersize+1;i++)
 		if(minimiser.compare(0,minimisersize,node,i,minimisersize)>0)
@@ -89,16 +77,32 @@ string minimiser(const string &node,const int &minimisersize)
 	return(minimiser);
 }
 
+string minimiserrc(const string &node,const int &minimisersize){
+	return min(minimiser(node,minimisersize),minimiser(reversecompletment(node),minimisersize));
+}
+
+string minbutbiggerthan(string kmerbeg,string kmerend,string namebucket,int m){
+	vector<string> miniv;
+	miniv.push_back(minimiser(kmerbeg,2*m));
+	miniv.push_back(minimiser(reversecompletment(kmerbeg),2*m));
+	miniv.push_back(minimiser(kmerend,2*m));
+	miniv.push_back(minimiser(reversecompletment(kmerend),2*m));
+	sort(miniv.begin(),miniv.end());
+	for(auto it(miniv.begin());it!=miniv.end();it++)	{
+		if(*it>namebucket)		{
+			return *it;
+		}
+	}
+	return "";
+}
 
 
 //Put kmers in superbuckets
-void sortentry(string namefile,const int k,const int m)
-{
+void sortentry(string namefile,const int k,const int m){
 	string superbucketname(m,'a');
 	int numbersuperbucket(min ((int)pow(4,m),1020));
 	ofstream out[1020];
-	for(int i(0);i<numbersuperbucket;i++)
-	{
+	for(int i(0);i<numbersuperbucket;i++)	{
 		out[i].open(".bcalmtmp/z"+superbucketname,ofstream::app);
 		superbucketname=nextstring(superbucketname);
 	}
@@ -110,16 +114,14 @@ void sortentry(string namefile,const int k,const int m)
 	string* buffer=new string();
 	string kmer,min,prefix; 
 	
-	for(int j(0);j<=n;j++)
-	{
+	for(int j(0);j<=n;j++)	{
 		if(j==n)
 			*buffer=readn(&in,size-n*buffsize);
 		else
 			*buffer=readn(&in,buffsize);
-		for(uint64_t i(0);i<buffer->size();i+=k+2)
-		{
+		for(uint64_t i(0);i<buffer->size();i+=k+2)		{
 			kmer=buffer->substr(i,k);
-			min=minimiser(kmer,2*m);
+			min=minimiserrc(kmer,2*m);
 			prefix=min.substr(0,m);
 			out[stringtointb(prefix)]<<kmer<<";";
 		}
@@ -131,12 +133,10 @@ void sortentry(string namefile,const int k,const int m)
 
 
 //copy n characters from in to out
-void copylm(ifstream* in,uint64_t n,ofstream* out)
-{
-	int buffsize(1000000),nbbuffer(n/buffsize);
+void copylm(ifstream* in,int64_t n,ofstream* out){
+	int buffsize(5),nbbuffer(n/buffsize);
 	string* str=new string();
-	for(int j(0);j<nbbuffer;j++)
-	{
+	for(int j(0);j<nbbuffer;j++)	{
 		*str=readn(in,buffsize);
 		*out<<*str;
 	}
@@ -145,73 +145,81 @@ void copylm(ifstream* in,uint64_t n,ofstream* out)
 	delete(str);
 }
 
+void copylmrv(ifstream* in,int64_t n,ofstream* out){
+	int buffsize(5),nbbuffer(n/buffsize);
+	int64_t pos(in->tellg());
+	string* str=new string();
+	int j;
+	for(j=1;j<=nbbuffer;j++)	{
+		in->seekg(pos+n-j*buffsize,ios::beg);
+		*str=readn(in,buffsize);
+		*out<<reversecompletment(*str);
+	}
+	int64_t rest=n-nbbuffer*buffsize;
+	if(rest!=0)	{
+		in->seekg(pos,ios::beg);
+		*str=readn(in,rest);
+		*out<<reversecompletment(*str);
+	}
+	delete(str);
+}
+
 
 //Put nodes from superbuckets to buckets
-void createbucket(const string superbucketname,const int k,const int m)
-{
+void createbucket(const string superbucketname,const int k,const int m){
 	ifstream in(".bcalmtmp/z"+superbucketname); 
-	if(!in.is_open())
-	{
+	if(!in.is_open()){
 		cerr<<"createbucket fail"<<endl;
 		return;
 	}
 	in.seekg(0, ios_base::end);
-	int64_t size(in.tellg()), buffsize(1000000), numberbuffer(size/buffsize),nb(min((int)pow(4,m),1020));;
-	if(size==0)
-	{
+	int64_t size(in.tellg()), buffsize(1000000), numberbuffer(size/buffsize),nb(min((int)pow(4,m),1020));
+	if(size==0)	{
 		remove((".bcalmtmp/z"+superbucketname).c_str());
 		return;
 	}
 	in.seekg(0,ios::beg);
 	string suffix(m,'a');
 	ofstream out[1020];
-	for(int i(0);i<nb;i++)
-	{
+	for(int i(0);i<nb;i++)	{
 		out[i].open(".bcalmtmp/"+superbucketname+suffix,ofstream::app);
 		suffix=nextstring(suffix);
 	}
-	
 	int64_t lastposition(-1),position(0),point(0);
-	string * buffer= new string();
-	string kmerbeg(readn(&in,k-1)),kmerend,minleft,minright,min,prefix;
+	string kmerbeg(readn(&in,k-1)),kmerend,mini,prefix, buffer;
+	vector<string> miniv;
 	in.seekg(0);
 	
-	for(int j(0);j<=numberbuffer;j++)
-	{
+	for(int j(0);j<=numberbuffer;j++)	{
 		if(j==numberbuffer )
-			if(size-numberbuffer*buffsize-1!=-1)
-			{
-				*buffer=readn(&in,size-numberbuffer*buffsize-1);
-				*buffer+=";";
+			if(size-numberbuffer*buffsize-1!=-1)			{
+				buffer=readn(&in,size-numberbuffer*buffsize-1);
+				buffer+=";";
 			}
 			else
-				*buffer="";
+				buffer="";
 		else
 		{
-			*buffer=readn(&in,buffsize);
+			buffer=readn(&in,buffsize);
 			point+=buffsize;
 		}
-		for (uint64_t i(0); i<buffer->size(); i++,position++) 
-			if((*buffer)[i]==';')
-			{
+		for (uint64_t i(0); i<buffer.size(); i++,position++) 
+			if((buffer)[i]==';')			{
 				if(i>=(uint64_t)k-1)
-					kmerend=buffer->substr(i-k+1,k-1);
-				else
-				{
+					kmerend=buffer.substr(i-k+1,k-1);
+				else				{
 					in.seekg(position-k+1);
 					kmerend=readn(&in,k-1);
 				}
-				minleft=minimalsub(kmerbeg,2*m,k);
-				minright=minimalsub2(kmerend,2*m,k);
-				min=minbutbiggerthan(minleft,minright,superbucketname);
-				prefix=min.substr(m,m);
+				
+				mini=minbutbiggerthan(kmerbeg,kmerend,superbucketname,m);
+				prefix=mini.substr(m,m);
 				in.seekg(lastposition+1,ios_base::beg);
 				copylm(&in,position-lastposition,&out[stringtointb(prefix)]);
 				lastposition=position;
-				if(buffer->size()>i+k)
-					kmerbeg=buffer->substr(i+1,k-1);
-				else
-				{
+				if(buffer.size()>i+k)
+					kmerbeg=buffer.substr(i+1,k-1);
+				else{
 					in.seekg(position+1);
 					kmerbeg=readn(&in,k-1);
 				}
@@ -220,32 +228,27 @@ void createbucket(const string superbucketname,const int k,const int m)
 		in.seekg(point);
 	}
 	
-	delete(buffer);
 	remove((".bcalmtmp/z"+superbucketname).c_str());
 }
 
 
 
 //count the length of each node
-vector<int64_t> countbucket(const string& name)
-{
+vector<int64_t> countbucket(const string& name){
 	vector<int64_t> count;
 	ifstream in(".bcalmtmp/"+name); 
-	if(in)
-	{
+	if(in){
 		in.seekg( 0 , ios_base::end );
-		int64_t size(in.tellg()),buffsize(1000000),numberbuffer(size/buffsize),lastposition(-1),position(0);
+		int64_t size(in.tellg()),buffsize(10),numberbuffer(size/buffsize),lastposition(-1),position(0);
 		if(size<2)
 			return count;
 		in.seekg(0,ios::beg);
 		string* buffer=new string ();
 		
-		for(int j(0);j<numberbuffer;j++)
-		{
+		for(int j(0);j<numberbuffer;j++)		{
 			*buffer=readn(&in,buffsize);
 			for (uint64_t i(0); i<buffer->size(); i++,position++) 
-				if((*buffer)[i]==';')
-				{
+				if((*buffer)[i]==';'){
 					count.push_back(position-lastposition-1);
 					lastposition=position;
 				}
@@ -253,8 +256,7 @@ vector<int64_t> countbucket(const string& name)
 		
 		*buffer=readn(&in,size-numberbuffer*buffsize);
 		for (uint64_t i(0); i<buffer->size(); i++,position++) 
-			if((*buffer)[i]==';')
-			{
+			if((*buffer)[i]==';')			{
 				count.push_back(position-lastposition-1);
 				lastposition=position;
 			}
@@ -267,28 +269,23 @@ vector<int64_t> countbucket(const string& name)
 
 
 //true iff node does not contain tag
-bool notag(const string& node,const int64_t start,int64_t* n)
-{
-	for(uint64_t i(start);i<node.size();i++)
-	{		
-		if (node[i] >= '0' && node[i] <= '9')
-		{
+bool notag(const string& node,const int64_t start,int64_t* n){
+	for(uint64_t i(start);i<node.size();i++)	{		
+		if (node[i] >= '0' && node[i] <= '9')		{
 			*n=i;
 			return false;
 		}
 	}
-
 	return true;
 }
 
 
 
 //return length of tag
-int taglength(const string& node, int64_t j)
-{
+int taglength(const string& node, int64_t j){
 	int n=1;
 	for(uint64_t i(j+1);i<node.size();i++)
-		if (node[i] >= '0' && node[i] <= '9')
+		if ((node[i] >= '0' && node[i] <= '9') || node[i]=='+' || node[i]=='-')
 			n++;
 		else
 			return n;
@@ -298,30 +295,41 @@ int taglength(const string& node, int64_t j)
 
 
 //Write a node remplacing tags by their sequences
-void writeit(const string& outfile,const string& node,vector<pair<int64_t,int64_t>>* tagsposition,ifstream* tagfile,int64_t j,const string& fout)
-{
+void writeit(const string& outfile,const string& node,vector<pair<int64_t,int64_t>>* tagsposition,ifstream* tagfile,int64_t j,const string& fout){
 	ofstream out(".bcalmtmp/"+outfile,ios::app);
-	if(out)
-	{
+	char rc;
+	if(out){
 		int64_t lastposition(0),tag,tagl,position,length;
 		pair<int64_t,int64_t> pair;
-		do
-		{
-			out<<node.substr(lastposition,j-lastposition);
+		do{
+			out<<node.substr(lastposition,j-lastposition-1);
 			tagl=taglength(node,j);
-			tag=stoi(node.substr(j,tagl));
+			rc=node[j-1];
+			if(rc=='+'){
+				tag=stoi(node.substr(j,tagl));
+			}
+			else{
+				tag=stoi(reversecompletment(node.substr(j,tagl)));
+			}
 			lastposition=j+tagl;
 			pair=(*tagsposition)[tag];
 			position=pair.first;
 			length= pair.second;
 			tagfile->seekg(position,ios_base::beg);
-			copylm(tagfile,length,&out);
+			if(rc=='+'){
+				copylm(tagfile,length,&out);
+			}			
+			if(rc=='-'){
+				copylmrv(tagfile,length,&out);
+			}
 		}
 		while(!notag(node,lastposition,&j));
-		if(outfile!=fout)
-			out<<node.substr(lastposition)<<";";
-		else
-			out<<node.substr(lastposition)<<";"<<endl;
+		if(outfile!=fout){
+				out<<node.substr(lastposition)<<";";
+		}
+		else{
+				out<<node.substr(lastposition)<<";"<<endl;
+		}
 	}
 	else
 		cerr<<"writeitbug"<<endl;
@@ -331,8 +339,7 @@ void put(const string& outfile,const string& node,const string& fout)
 {
 	ofstream out(".bcalmtmp/"+outfile,ios::app);
 	out<<node<<";";
-	if(outfile==fout)
-	{
+	if(outfile==fout){
 		out<<endl;
 	}
 }
@@ -340,12 +347,10 @@ void put(const string& outfile,const string& node,const string& fout)
 void putorwrite(const string& outfile, const string& node, vector<pair<int64_t,int64_t>>* tagsposition , ifstream* tagfile,const string& fout)
 {
 	int64_t i;
-	if(notag(node,0,&i))
-	{
+	if(notag(node,0,&i)){
 		put(outfile,node,fout);
 	}
-	else
-	{
+	else{
 		writeit(outfile,node,tagsposition,tagfile,i,fout);
 	}
 }
@@ -356,74 +361,65 @@ void goodplace(const string& node,int k, const string& bucketname,vector<pair<in
 	string suffix(bucketname.substr(0,m)),next(nextstring(suffix)),begin(m,'a');
 	if(next==begin)
 		next=suffix+"ttttttt";
-	string leftminimiser(minimalsub(node,2*m,k)),rightminimiser(minimalsub2(node,2*m,k));
-	string minimum(min(leftminimiser,rightminimiser)),maximum(max(leftminimiser,rightminimiser));
-	string minprefix('z'+minimum.substr(0,m)),maxprefix('z'+maximum.substr(0,m));
-	
-	if(minimum>bucketname)
-		putorwrite( ((minimum>=next) ? minprefix : minimum), node,tagsposition,tagfile,nameout);
-	else
-		if(maximum>bucketname)
-			putorwrite( ((maximum>=next) ? maxprefix : maximum), node,tagsposition,tagfile,nameout);
-		else
-			putorwrite( nameout, node,tagsposition,tagfile,nameout);
+	string mini=minbutbiggerthan(node.substr(0,k-1),node.substr(node.size()-k+1,k-1),bucketname,m);
+	if(mini==""){
+		putorwrite( nameout, node,tagsposition,tagfile,nameout);
+	}
+	else{
+		string miniprefix('z'+mini.substr(0,m));
+		putorwrite( ((mini>=next) ?  miniprefix: mini), node,tagsposition,tagfile,nameout);
+	}
 }
 
 
 
 //Compact a bucket and put the nodes on the right place
-void compactbucket(const string prefix,const string suffix,const int k,const char *nameout,const int m)
+void compactbucket(const string& prefix,const string& suffix,const int k,const char *nameout,const int m)
 {
-	int64_t buffsize(2*k),postags(0),length;
+	int64_t buffsize(k),postags(0),length;
 	long long tagnumber(0);
 	string fullname(prefix+suffix),node,tag,end;
 	auto count(countbucket(fullname));
-	if(count.size()==0)
-	{
+	if(count.size()==0)	{
 		remove((".bcalmtmp/"+fullname).c_str());
 		return;
 	}
 	ifstream in(".bcalmtmp/"+fullname);
 	ofstream tagfile(".bcalmtmp/tags"),out(".bcalmtmp/"+(string)nameout,ios_base::app);
-	graph* g=new graph(k);
+	graph g(k);
 	vector<pair<int64_t,int64_t>> tagsposition;
 	
-	if(in && tagfile && out)
-	{
-		for(auto it=count.begin();it!=count.end();it++)
-		{
+	if(in && tagfile && out)	{
+		for(auto it=count.begin();it!=count.end();it++)		{
 			length=*it;
-			if(length<=2*buffsize)
-			{
+			if(length<=2*buffsize){
 				node=readn(&in,length+1);
-				g->addvertex(node.substr(0,length));
+				g.addvertex(node.substr(0,length));
 			}
-			else
-			{
+			else{
 				node=readn(&in,buffsize);
 				tag=to_string(tagnumber);
-				node+=tag;
+				node+="+"+tag+"+";
 				tagnumber++;
 				copylm(&in,length-2*buffsize,&tagfile);
 				tagsposition.push_back(make_pair(postags,length-2*buffsize));
 				postags+=length-2*buffsize;
 				end=readn(&in,buffsize+1);
 				node+=end.substr(0,buffsize);
-				g->addvertex(node);
+				g.addvertex(node);
 			}
 		}
 		tagfile.close();
 	}
 	
 	remove((".bcalmtmp/"+fullname).c_str());
-	g->debruijn();
-	g->compress(fullname);
+	g.debruijn();
+	g.compress(fullname);
 	ifstream fichiertagin(".bcalmtmp/tags");
-	for(auto it(g->nodes.begin());it!=g->nodes.end();it++)
+	for(auto it(g.nodes.begin());it!=g.nodes.end();it++)
 		if(it->size()!=0)
 			goodplace(*it,k,fullname,&tagsposition,&fichiertagin,m,nameout);
 	
-	delete g;
 	remove(".bcalmtmp/tags");
 	return;
 }
@@ -431,22 +427,19 @@ void compactbucket(const string prefix,const string suffix,const int k,const cha
 //Create a file with the nodes of the compacted graph
 void createoutfile(const char *namein,const char *nameout,const int k,const int m)
 {
-	int sys(0);
+	auto start=chrono::system_clock::now();
+	int64_t nbsuperbucket(min((int)pow(4,m),1020)),sys(0);
 	mkdir(".bcalmtmp",0777);
 	sys+=system("rm -rf .bcalmtmp/*");
-	int64_t nbsuperbucket(min((int)pow(4,m),1020));
 	remove(nameout);
 	sortentry(namein,k,m);
-	string seed(m,'a');
-	string next,prefix,suffix;
+	string seed(m,'a'),next,prefix,suffix;
 	prefix=seed;
 	next=nextstring(prefix);
-	for(int i(0);i<nbsuperbucket;i++)
-	{
+	for(int i(0);i<nbsuperbucket;i++){
 		createbucket(prefix,k,m);
 		suffix=string(m,'a');
-		for(int j(0);j<pow(4,m);j++)
-		{
+		for(int j(0);j<pow(4,m);j++){
 			compactbucket(prefix,suffix,k,nameout,m);
 			suffix=nextstring(suffix);
 		}
@@ -458,5 +451,9 @@ void createoutfile(const char *namein,const char *nameout,const int k,const int 
 	sys+=system(("mv .bcalmtmp/"+(string)nameout+" "+(string)nameout).c_str());
 	if(sys!=0)
 		cerr<<"system call failed"<<endl;
+	 auto end=chrono::system_clock::now();
+	 auto waitedFor=end-start;
+	 cout<<"Last for "<<chrono::duration_cast<chrono::seconds>(waitedFor).count()<<" seconds"<<endl;
+    
 }
 

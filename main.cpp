@@ -20,28 +20,40 @@ int main(int argc, char ** argv)
 	if(argc==1)
 	{
 		srand(time(NULL)); 
-		uint64_t n(100000);
-		int k(50);
-		int m(4);
-		
-		cout<<"Test "<<"n:"<<n<<" k:"<<k<<" m:"<<2*m<<endl;
-		createinputlm(n,k,"randomgenome");
-		sys+=system("cat randomgenome | sort | uniq > input.dot");
-		
-		graph G(k);
-		G.importg("input.dot");
-		G.debruijn();
-		G.compress();
-		G.print("output.dot");
-		createoutfile("input.dot","outputlowmemory.dot",k,m);
-		if(!checkfile("output.dot","outputlowmemory.dot"))
+		bool b(true);
+		int n(1000);
+		while(b)
 		{
-			cout<<"Errors occurred !"<<endl;
+			
+			int sys(0);
+			int k(20);
+			int m(2);
+			
+			cout<<"Test "<<"n:"<<n<<" k:"<<k<<" m:"<<2*m<<endl;	
+			createinputlm(n,k,"randomgenome");
+			sys+=system("cat randomgenome | sort | uniq > input.dot");
+			graph G(k);
+			G.importg("input.dot");
+			G.debruijn();
+			G.compress();
+			G.print("output.dot");
+			cout<<"GO!"<<endl;
+			createoutfile("input.dot","outputlowmemory.dot",k,m);
+			if(!checkfile("output.dot","outputlowmemory.dot",k))
+			{
+				cout<<"Errors occurred !"<<endl;
+				b=false;
+			}
+			else
+			{
+				cout<<"Success !"<<endl;
+				n*=2;
+				cout<<n<<endl;
+					//~ cin.get();
+					
+			}
 		}
-		else
-		{
-			cout<<"Success !"<<endl;
-		}
+		
 	}
 	if(argc==2)
 	{
@@ -60,7 +72,7 @@ int main(int argc, char ** argv)
 		G.compress();
 		G.print("output.dot");
 		createoutfile("input.dot","outputlowmemory.dot",k,m);
-		if(!checkfile("output.dot","outputlowmemory.dot"))
+		if(!checkfile("output.dot","outputlowmemory.dot",k))
 		{
 			cout<<"Errors occurred !"<<endl;
 		}
@@ -86,7 +98,7 @@ int main(int argc, char ** argv)
 		G.compress();
 		G.print("output.dot");
 		createoutfile("input.dot","outputlowmemory.dot",k,m);
-		if(!checkfile("output.dot","outputlowmemory.dot"))
+		if(!checkfile("output.dot","outputlowmemory.dot",k))
 		{
 			cout<<"Errors occurred !"<<endl;
 		}
@@ -112,7 +124,7 @@ int main(int argc, char ** argv)
 		G.compress();
 		G.print("output.dot");
 		createoutfile("input.dot","outputlowmemory.dot",k,m);
-		if(!checkfile("output.dot","outputlowmemory.dot"))
+		if(!checkfile("output.dot","outputlowmemory.dot",k))
 		{
 			cout<<"Errors occurred !"<<endl;
 		}

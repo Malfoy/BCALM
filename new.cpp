@@ -63,6 +63,7 @@ string minbutbiggerthan(const string& minimiser1,const string& minimiser2,string
 	}
 }
 
+
 bool nextchar(char * c)
 {
 	switch(*c)

@@ -14,13 +14,11 @@
 using namespace std;
 
 
-void fastatodot(const char * name,const char * namout)
-{
+void fastatodot(const char * name,const char * namout){
 	ifstream in(name);
 	ofstream out(namout);
 	string data;
-	while(!in.eof())
-	{
+	while(!in.eof()){
 		getline(in,data);
 		transform(data.begin(), data.end(), data.begin(), ::tolower);
 		if(data!="")
@@ -30,17 +28,14 @@ void fastatodot(const char * name,const char * namout)
 
 
 
-void createinputlm(int64_t lr,int k,const char *name)
-{
+void createinputlm(int64_t lr,int k,const char *name){
 	ofstream out(name,ios::trunc);
 	int r;
 	string c;
 	string kmer(k,'a');
-	for(int b(0);b<k;b++)
-	{
+	for(int b(0);b<k;b++){
 		r=rand()%4;
-		switch(r)
-		{
+		switch(r){
 			case 1:
 			{
 				kmer[b]='a';
@@ -63,12 +58,10 @@ void createinputlm(int64_t lr,int k,const char *name)
 			}
 		}
 	}
-	for(int64_t b(0);b<lr;b++)
-	{
+	for(int64_t b(0);b<lr;b++){
 		kmer=kmer.substr(1,k-1);
 		r=rand()%4;
-		switch(r)
-		{
+		switch(r){
 			case 1:
 			{
 				c='a';
@@ -91,35 +84,50 @@ void createinputlm(int64_t lr,int k,const char *name)
 			}
 		}
 		kmer+=c;
-		out<<kmer<<";"<<endl;
+		if(kmer<reversecompletment(kmer)){
+			out<<kmer<<";"<<endl;
+		}
+		else{
+			if(kmer>reversecompletment(kmer)){
+				out<<reversecompletment(kmer)<<";"<<endl;
+			}
+		}
+		
 	}
 }
 
 
-bool checkfile(string name1, string name2)
-{
+bool checkfile(string name1, string name2,int k){
 	int fail(0);
 	ifstream t1(name1), t2(name2);
-	string line;
-	unordered_map<string,bool> s1,s2;
-	while(!t1.eof())
-	{
+	string line,kmer;
+	unordered_map<string,bool> s1,s2,e1,e2;
+	while(!t1.eof()){
 		getline(t1,line);
-		if(line.size()>2)
-		s1.insert(make_pair(line,false));
+		if(line.size()>2){
+			string node=line.substr(0,line.size()-1);
+			node=min(node,reversecompletment(node));
+			s1.insert(make_pair(node,false));
+		}
 	}
-	while(!t2.eof())
-	{
+	while(!t2.eof()){
 		getline(t2,line);
-		if(line.size()>2)
-			s2.insert(make_pair(line,false));
+		if(line.size()>2){
+			string node=line.substr(0,line.size()-1);
+			node=min(node,reversecompletment(node));
+			s2.insert(make_pair(node,false));
+		}
 	}
-	for(auto it=s1.begin(); it!=s1.end(); it++)
-	{
+	for(auto it=s1.begin(); it!=s1.end(); it++){
 			string str=it->first;
 			auto smt=s2.find(str);
-			if(smt==s2.end())
-				fail++;
+			if(smt==s2.end()){
+				for(int i(0);i+k<=(int)str.size();i++){
+					kmer=str.substr(i,k);
+					kmer=min(kmer,reversecompletment(kmer));
+					e2.insert(make_pair(kmer,false));
+				}
+			}
 			else
 				smt->second=true;
 	}
@@ -127,8 +135,28 @@ bool checkfile(string name1, string name2)
 		if(!it->second)
 		{
 			string str=it->first;
-			fail++;
+			for(int i(0);i+k<=(int)str.size();i++){
+				kmer=str.substr(i,k);
+				kmer=min(kmer,reversecompletment(kmer));
+				e1.insert(make_pair(kmer,false));
+			}
 		}
+	for(auto it=e2.begin(); it!=e2.end(); it++){
+		string str=it->first;
+		auto smt=e1.find(str);
+		if(smt==s1.end()){
+			fail++;
+			cout<<str<<endl;
+		}
+		else
+			smt->second=true;
+	}
+	for(auto it=e1.begin(); it!=e1.end(); it++){
+		if(!it->second){
+			fail++;
+			cout<<it->first<<endl;
+		}
+	}
 	cout<<"Errors:"<<fail<<endl;
 	return(fail==0);
 }

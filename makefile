@@ -1,4 +1,4 @@
-CC=g++
+CC=clang++
 CFLAGS=-W -Wall -O3 -std=c++0x
 LDFLAGS=
 EXEC=bcalm
