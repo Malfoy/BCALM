@@ -171,7 +171,7 @@ uint64_t graph::becompacted(uint64_t nodeindice,const string& min, unsigned char
 	int one(neigh.nbtype(1)),two(neigh.nbtype(2)),three(neigh.nbtype(3)),four(neigh.nbtype(4));
 	int in(three+four);
 	int out(one+two);
-	if(out==1 && (minimalsub2(node,m,k)==min || min.empty())){
+	if(out==1 && (minimalsub2(node,m,k)<=min || min.empty())){
 		if(one==1){
 			uint64_t sonindice(neigh.gtype(1));
 			*type=1;
@@ -186,13 +186,13 @@ uint64_t graph::becompacted(uint64_t nodeindice,const string& min, unsigned char
 		}
 	}
 	if(in==1){
-		if(three==1 && (minimalsub2(reversecompletment(node),m,k)==min || min.empty())){
+		if(three==1 && (minimalsub2(reversecompletment(node),m,k)<=min || min.empty())){
 			uint64_t sonindice(neigh.gtype(3));
 			*type=3;
 			if(neighbor[sonindice].nbtype(3)+neighbor[sonindice].nbtype(4)==1 && sonindice!=nodeindice)
 				return sonindice;
 		}
-		if(four==1 && (minimalsub(node,m,k)==min || min.empty())){
+		if(four==1 && (minimalsub(node,m,k)<=min || min.empty())){
 			uint64_t sonindice(neigh.gtype(4));
 			*type=4;
 			if(neighbor[sonindice].nbtype(1)+neighbor[sonindice].nbtype(2)==1 && sonindice!=nodeindice)
