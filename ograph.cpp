@@ -130,10 +130,8 @@ void graph::debruijn(){
 	uint64_t key,keyrc;
 	for(uint64_t i(1);i<n;i++){
 		node=nodes[i];
-		kmmer=node.substr(node.size()-k+1,k-1);
-		kmmerr=node.substr(0,k-1);
-		key=getkey(kmmer);
-		keyrc=getkeyrevc(kmmerr);
+		key=getkey(node);
+		keyrc=getkeyrevc(node);
 		auto it(map.equal_range(key));
 		for(auto j(it.first);j!=it.second;j++)
 			//if k>32 collision can occur
@@ -160,6 +158,7 @@ void graph::debruijn(){
 
 uint64_t graph::becompacted(uint64_t nodeindice,const string& min, unsigned char *type)
 {
+	
 	*type=0;
 	int m=min.size();
 	string node=nodes[nodeindice];
@@ -169,9 +168,10 @@ uint64_t graph::becompacted(uint64_t nodeindice,const string& min, unsigned char
 	
 	auto neigh(neighbor[nodeindice]); 
 	int one(neigh.nbtype(1)),two(neigh.nbtype(2)),three(neigh.nbtype(3)),four(neigh.nbtype(4));
+	//~ cout<<one<<" "<<two<<" "<<three<<" "<<four<<endl;
 	int in(three+four);
 	int out(one+two);
-	if(out==1 && (minimalsub2(node,m,k)<=min || min.empty())){
+	if(out==1 && (minimalsub2(node,m,k)==min || min.empty())){
 		if(one==1){
 			uint64_t sonindice(neigh.gtype(1));
 			*type=1;
@@ -186,13 +186,13 @@ uint64_t graph::becompacted(uint64_t nodeindice,const string& min, unsigned char
 		}
 	}
 	if(in==1){
-		if(three==1 && (minimalsub2(reversecompletment(node),m,k)<=min || min.empty())){
+		if(three==1 && (minimalsub2(reversecompletment(node),m,k)==min || min.empty())){
 			uint64_t sonindice(neigh.gtype(3));
 			*type=3;
 			if(neighbor[sonindice].nbtype(3)+neighbor[sonindice].nbtype(4)==1 && sonindice!=nodeindice)
 				return sonindice;
 		}
-		if(four==1 && (minimalsub(node,m,k)<=min || min.empty())){
+		if(four==1 && (minimalsub(node,m,k)==min || min.empty())){
 			uint64_t sonindice(neigh.gtype(4));
 			*type=4;
 			if(neighbor[sonindice].nbtype(1)+neighbor[sonindice].nbtype(2)==1 && sonindice!=nodeindice)
@@ -354,13 +354,21 @@ void graph::compact(uint64_t nodeindice,uint64_t with, unsigned char c){
 				neighbor[indice].add(with,2);
 			}
 		}
+		break;
 	}
-
 }
 
 //Compact the graph but not the nodes that should be compacted in an other bucket 
 void graph::compress(const string& min)
 {
+	for(uint64_t nodeindice(1);nodeindice<n;nodeindice++){
+		unsigned char type(0);
+		uint64_t with=becompacted(nodeindice,min,&type);
+		if(with!=0){
+			compact(nodeindice,with,type);
+		}
+	}
+	//TOCHANGE
 	for(uint64_t nodeindice(1);nodeindice<n;nodeindice++){
 		unsigned char type(0);
 		uint64_t with=becompacted(nodeindice,min,&type);

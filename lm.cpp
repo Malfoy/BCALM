@@ -88,8 +88,8 @@ string minbutbiggerthan(string kmerbeg,string kmerend,string namebucket,int m){
 	miniv.push_back(minimiser(kmerend,2*m));
 	miniv.push_back(minimiser(reversecompletment(kmerend),2*m));
 	sort(miniv.begin(),miniv.end());
-	for(auto it(miniv.begin());it!=miniv.end();it++)	{
-		if(*it>namebucket)		{
+	for(auto it(miniv.begin());it!=miniv.end();it++){
+		if(*it>namebucket){
 			return *it;
 		}
 	}

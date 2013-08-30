@@ -98,7 +98,7 @@ void createinputlm(int64_t lr,int k,const char *name){
 
 
 bool checkfile(string name1, string name2,int k){
-	int fail(0);
+	int fail(0),lowfail(0);
 	ifstream t1(name1), t2(name2);
 	string line,kmer;
 	unordered_map<string,bool> s1,s2,e1,e2;
@@ -122,6 +122,7 @@ bool checkfile(string name1, string name2,int k){
 			string str=it->first;
 			auto smt=s2.find(str);
 			if(smt==s2.end()){
+				lowfail++;
 				for(int i(0);i+k<=(int)str.size();i++){
 					kmer=str.substr(i,k);
 					kmer=min(kmer,reversecompletment(kmer));
@@ -135,6 +136,7 @@ bool checkfile(string name1, string name2,int k){
 		if(!it->second)
 		{
 			string str=it->first;
+			lowfail++;
 			for(int i(0);i+k<=(int)str.size();i++){
 				kmer=str.substr(i,k);
 				kmer=min(kmer,reversecompletment(kmer));
@@ -157,6 +159,7 @@ bool checkfile(string name1, string name2,int k){
 			cout<<it->first<<endl;
 		}
 	}
+	cout<<"Lowrrors:"<<lowfail<<endl;
 	cout<<"Errors:"<<fail<<endl;
-	return(fail==0);
+	return(lowfail==0);
 }
