@@ -5,10 +5,10 @@
 #include <iterator>
 #include <ctime>
 #include <unordered_map>
-#include <chrono>
 #include <algorithm>
 #include "debug.h"
 #include "ograph.h"
+
 
 
 using namespace std;
@@ -26,6 +26,15 @@ void fastatodot(const char * name,const char * namout){
 	}
 }
 
+int detectk(const string& input){
+	ifstream in(input);
+	string line;
+	if(in){
+		getline(in,line);
+	}
+	return(line.size()-1);
+}
+
 
 
 void createinputlm(int64_t lr,int k,const char *name){
@@ -36,23 +45,19 @@ void createinputlm(int64_t lr,int k,const char *name){
 	for(int b(0);b<k;b++){
 		r=rand()%4;
 		switch(r){
-			case 1:
-			{
+			case 1:{
 				kmer[b]='a';
 				break;
 			}
-			case 2:
-			{
+			case 2:{
 				kmer[b]='c';
 				break;
 			}
-			case 3:
-			{
+			case 3:{
 				kmer[b]='g';
 				break;
 			}
-			case 0:
-			{
+			case 0:{
 				kmer[b]='t';
 				break;
 			}
@@ -62,23 +67,19 @@ void createinputlm(int64_t lr,int k,const char *name){
 		kmer=kmer.substr(1,k-1);
 		r=rand()%4;
 		switch(r){
-			case 1:
-			{
+			case 1:{
 				c='a';
 				break;
 			}
-			case 2:
-			{
+			case 2:{
 				c='c';
 				break;
 			}
-			case 3:
-			{
+			case 3:{
 				c='g';
 				break;
 			}
-			case 0:
-			{
+			case 0:{
 				c='t';
 				break;
 			}
@@ -92,7 +93,6 @@ void createinputlm(int64_t lr,int k,const char *name){
 				out<<reversecompletment(kmer)<<";"<<endl;
 			}
 		}
-		
 	}
 }
 

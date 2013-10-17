@@ -5,26 +5,22 @@ de Bruijn CompAction in Low Memory
 
 Possible use :
 
-./bcalm   
-Launch a small test on a random genome
+./bcalm
+launch a test ( for now it does not work and say corrupted double linked list)
 
+./bcalm input.dot
+detect k and do the compaction with m=10 in compacted.dot
 
-./bcalm n   
-Launch a test on a random genome of n kmers
+./bcalm input.dot output.dot
+detect k and do the compaction with m=10 in output.dot
 
+./bcalm input.dot output.dot 8
+detect k and do the compaction with m=8 in output.dot
 
-./bcalm n k   
-Same as before but with a specified value for k
-
-
-./bcalm n k m   
-Same as before but with a specified value of the minimiser size (<=10)
-
-
-./bcalm input output k m    
-Real utilisation : read input file and write the nodes in the output file
+./bcalm input.dot output.dot 8 50
+do the compaction with m=8  and k=50 in output.dot
 
 Nota Bene :   
 Higher m mean lower memory but the algorithm will NOT work with m>10.   
-Also note that to use m>=8 you have to allow 260 open files (with ulimit -n 260)
-and 1024 to use m=10 (with ulimit -n 1024).
+Also note that to use m>=8 you have to allow 260 open files (`ulimit -n 260`)
+and 1110 for m=10 (`ulimit -n 1100`).

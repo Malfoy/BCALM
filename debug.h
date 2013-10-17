@@ -9,5 +9,7 @@ void createinputlm(int64_t lr,int k,const char *name);
 
 bool checkfile(string name1, string name2,int k);
 
+int detectk(const string& input);
+
 
 #endif
