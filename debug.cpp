@@ -35,6 +35,17 @@ int detectk(const string& input){
 	return(line.size()-1);
 }
 
+bool testulimit(int l)
+{
+	system("ulimit -n > .ulimit");
+	ifstream in(".ulimit");
+	string line;
+	getline(in,line);
+	int n;
+	n=stoi(line);
+	remove(".ulimit");
+	return (n>=l);
+}
 
 
 void createinputlm(int64_t lr,int k,const char *name){

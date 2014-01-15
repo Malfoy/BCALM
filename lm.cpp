@@ -14,6 +14,7 @@
 #include <chrono>
 
 #include "lm.h"
+#include "input.h"
 
 /*
  * Constuct the compacted de bruijn graph from list of distinct kmers
@@ -61,58 +62,53 @@ bool nextchar(char * c){
 
 // reads k-mers and Put kmers in superbuckets
 // (other behavior: just count m-mers)
-void sortentry(string namefile, const int k, const int m, HashMap* hm, bool create_buckets, bool m_mer_count){
+void sortentry(string namefile, const int k, const int m, bool create_buckets, bool m_mer_count){
 	int numbersuperbucket(pow(4,m));
 	ofstream out[5000];
     ofstream checkpoint;
+    InputDot ind;
     if (create_buckets)
     {
     	for(long long i(0);i<numbersuperbucket;i++)
     		out[i].open(".bcalmtmp/z"+to_string(i),ofstream::app);
     }
 
-	ifstream in(namefile);
-	string buffer,kmer,prefix;
-	in.seekg(0,ios_base::end);
-	int64_t size(in.tellg()), buffsize(10000*(k+2)), n(size/buffsize),h;
-	in.seekg(0,ios::beg);
+    ind.init_input(namefile,k);
 
-	for(int j(0);j<=n;j++){
-		if(j==n)
-			buffer=readn(&in,size-n*buffsize);
-		else
-			buffer=readn(&in,buffsize);
-		for(uint64_t i(0);i<buffer.size();i+=k+2){
-			kmer=buffer.substr(i,k);
+    while (1)
+    {
+        string kmer = ind.next_input(k);
 
-            if (m_mer_count)
-            {
-                count_m_mers(kmer, 2*m, k);
-                continue;
-            }
+        if (kmer == "")
+            break;
 
-			int middlemin, leftmostmin, rightmostmin, min;
-            
-            middlemin=minimiserrc(kmer.substr(1,k-2),2*m,hm);
-    		leftmostmin=minimiserrc(kmer.substr(0,2*m),2*m,hm);
-    		rightmostmin=minimiserrc(kmer.substr(kmer.size()-2*m,2*m),2*m,hm);
+        if (m_mer_count)
+        {
+            count_m_mers(kmer, 2*m, k);
+            continue;
+        }
 
-            int leftmin = (leftmostmin < middlemin) ? leftmostmin : middlemin;
+        int middlemin, leftmostmin, rightmostmin, min;
+        
+        middlemin=minimiserrc(kmer.substr(1,k-2),2*m);
+        leftmostmin=minimiserrc(kmer.substr(0,2*m),2*m);
+        rightmostmin=minimiserrc(kmer.substr(kmer.size()-2*m,2*m),2*m);
 
-            int rightmin = (rightmostmin < middlemin) ? rightmostmin : middlemin ;
+        int leftmin = (leftmostmin < middlemin) ? leftmostmin : middlemin;
 
-			min = (leftmin < rightmin) ? leftmin : rightmin;
+        int rightmin = (rightmostmin < middlemin) ? rightmostmin : middlemin ;
 
-			h = min/numbersuperbucket;
+        min = (leftmin < rightmin) ? leftmin : rightmin;
 
-            if (create_buckets)
-    			out[h]<<kmer<< minimizer2string(leftmin) << minimizer2string(rightmin) <<";";
-            else
-                cout << h << ":" << kmer<< minimizer2string(leftmin) << minimizer2string(rightmin) << ";\n";
+        uint64_t h = min/numbersuperbucket;
 
-            //checkpoint << kmer << minimizer2string(leftmin) << minimizer2string(rightmin) <<";\n";
-		}
-	}
+        if (create_buckets)
+            out[h]<<kmer<< minimizer2string(leftmin) << minimizer2string(rightmin) <<";";
+        else
+            cout << h << ":" << kmer<< minimizer2string(leftmin) << minimizer2string(rightmin) << ";\n";
+
+        //checkpoint << kmer << minimizer2string(leftmin) << minimizer2string(rightmin) <<";\n";
+}
     if (create_buckets)
         cout << "initial partitioning done" << endl;
 }
@@ -151,7 +147,7 @@ void copylmrv(ifstream* in,int64_t n,ofstream* out){
 
 
 //Put nodes from superbuckets to buckets
-void createbucket(const string superbucketname,const int k,const int m,HashMap* hm){
+void createbucket(const string superbucketname,const int m){
 	int superbucketnum(stoi(superbucketname));
 	ifstream in(".bcalmtmp/z"+superbucketname);
 	if(!in.is_open()){
@@ -331,7 +327,7 @@ void putorwrite(const string& outfile, const string& node, int leftmin, int righ
 }
 
 //Decide where to put a node
-void goodplace(const string& node, int leftmin, int rightmin, int k, const string& bucketname,vector<pair<int64_t,int64_t>>* tagsposition,ifstream* tagfile,const int m,const string& nameout,HashMap* hm){
+void goodplace(const string& node, int leftmin, int rightmin, const string& bucketname,vector<pair<int64_t,int64_t>>* tagsposition,ifstream* tagfile,const int m,const string& nameout){
 	int nb(pow(4,m)),prefixnumber(stoi(bucketname)/nb+1);
 	long long mini(minbutbiggerthan(leftmin, rightmin, bucketname));
 	if(mini==-1)
@@ -346,7 +342,7 @@ void goodplace(const string& node, int leftmin, int rightmin, int k, const strin
 
 
 //Compact a bucket and put the nodes on the right place
-void compactbucket(const int& prefix,const int& suffix,const int k,const char *nameout,const int m,HashMap* hm){
+void compactbucket(const int& prefix,const int& suffix,const int k,const char *nameout,const int m){
 	int64_t buffsize(k),postags(0),length,nb(pow(4,m));
 	long long tagnumber(0),numberbucket(prefix*nb+suffix);
 	string fullname(to_string(numberbucket)),node,tag,end;
@@ -400,7 +396,7 @@ void compactbucket(const int& prefix,const int& suffix,const int k,const char *n
 	remove((".bcalmtmp/"+fullname).c_str());
 	g.debruijn();
 
-	g.compressh(stoi(fullname),hm);
+	g.compressh(stoi(fullname));
 	ifstream fichiertagin(".bcalmtmp/tags");
     int node_index = 0;
     
@@ -410,7 +406,7 @@ void compactbucket(const int& prefix,const int& suffix,const int k,const char *n
         {
             int leftmin = g.leftmins[node_index];
             int rightmin = g.rightmins[node_index];
-			goodplace(*it, leftmin, rightmin, k,fullname,&tagsposition,&fichiertagin,m,nameout,hm);
+			goodplace(*it, leftmin, rightmin,fullname,&tagsposition,&fichiertagin,m,nameout);
         }
         node_index++;
     }
@@ -430,14 +426,14 @@ void createoutfile(const char *namein,const char *nameout,const int k,const int 
 
     // create the hash function
     init_m_mers_table(2*m);
-    sortentry(namein,k,m,&hm, false, true);
+    sortentry(namein,k,m, false, true);
     create_hash_function_from_m_mers(2*m);
 
-	sortentry(namein,k,m,&hm);
+	sortentry(namein,k,m);
 	for(long long i(0);i<nbsuperbucket;i++){
-		createbucket(to_string(i),k,m,&hm);
+		createbucket(to_string(i),m);
 		for(int j(0);j<pow(4,m);j++)
-			compactbucket(i,j,k,nameout,m,&hm);
+			compactbucket(i,j,k,nameout,m);
 	}
 	sys+=system(("mv .bcalmtmp/"+(string)nameout+" "+(string)nameout).c_str());
 	if(sys!=0)

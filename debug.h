@@ -11,5 +11,6 @@ bool checkfile(string name1, string name2,int k);
 
 int detectk(const string& input);
 
+bool testulimit(int l);
 
 #endif

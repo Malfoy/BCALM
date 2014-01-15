@@ -137,17 +137,17 @@ HashMap build_hash_map(int len){
 
 
 
-int getash(HashMap* hm, const string& s, int& previous_shash, int start_pos = 0, int length = -1){
+int getash(const string& s, int& previous_shash, int start_pos = 0, int length = -1){
 	//return ((*hm)[s]); // slow
     //return shash(s, start_pos, length);
     return best_possible_hash_function[shash(s, previous_shash, start_pos, length)];
 }
 
-int minimiserv(const string &node,const int &minimisersize,HashMap* hm){
+int minimiserv(const string &node,const int &minimisersize){
     int previous_shash = -1;
-	int minimiser_value(getash(hm, node, previous_shash, 0, minimisersize)),vsub;
+	int minimiser_value(getash(node, previous_shash, 0, minimisersize)),vsub;
 	for(uint64_t i(1);i<node.size()-minimisersize+1;i++){
-		vsub=getash(hm,node, previous_shash,i,minimisersize);
+		vsub=getash(node, previous_shash,i,minimisersize);
 		if( minimiser_value > vsub){
 			minimiser_value = vsub;
 		}
@@ -155,23 +155,23 @@ int minimiserv(const string &node,const int &minimisersize,HashMap* hm){
     return(minimiser_value);
 }
 
-int minimiserrc(const string &node,const int &minimisersize,HashMap* hm){
+int minimiserrc(const string &node,const int &minimisersize){
 	int h1, h2;
-	h1 = minimiserv(node,minimisersize,hm);
-	h2 = minimiserv(reversecompletment(node),minimisersize,hm);
+	h1 = minimiserv(node,minimisersize);
+	h2 = minimiserv(reversecompletment(node),minimisersize);
     return (h1 > h2) ? h2 : h1;
 }
 
-int minimiserrc_openmp(const string &node,const int &minimisersize,HashMap* hm){
+int minimiserrc_openmp(const string &node,const int &minimisersize){
 	string nodes[2];
 	int resHash[2];
 
 	nodes[0] = node;
 	nodes[1] = reversecompletment(node);
 
-	#pragma omp parallel for
+	//~ #pragma omp parallel for
 	for (int i=0; i<2; i++){
-		resHash[i] = minimiserv(nodes[i],minimisersize,hm);
+		resHash[i] = minimiserv(nodes[i],minimisersize);
 	}
 
 	if(resHash[0] < resHash[1]){
@@ -343,7 +343,7 @@ bool accordtomin(int min, int left_or_right_min){
 
 }
 
-uint64_t graph::becompacted(uint64_t nodeindice, int min, unsigned char *type,HashMap* hm){
+uint64_t graph::becompacted(uint64_t nodeindice, int min, unsigned char *type){
 
 	*type=0;
 	string node=nodes[nodeindice];
@@ -558,11 +558,11 @@ void graph::compact(uint64_t nodeindice,uint64_t with, unsigned char c){
 
 
 //Compact the graph but not the nodes that should be compacted in an other bucket
-void graph::compressh(int min,HashMap* hm){
+void graph::compressh(int min){
 	unsigned char type(0);
 	uint64_t with;
 	for(uint64_t nodeindice(1);nodeindice<n;nodeindice++){
-		with=becompacted(nodeindice,min,&type,hm);
+		with=becompacted(nodeindice,min,&type);
 		if(with!=0)
 			compact(nodeindice,with,type);
 	}
@@ -574,7 +574,7 @@ void graph::compress(){
 	unsigned char type(0);
 	uint64_t with;
 	for(uint64_t nodeindice(1);nodeindice<n;nodeindice++){
-		with=becompacted(nodeindice,-1,&type,&hm);
+		with=becompacted(nodeindice,-1,&type);
 		if(with!=0)
 			compact(nodeindice,with,type);
 	}

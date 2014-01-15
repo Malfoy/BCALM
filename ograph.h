@@ -23,7 +23,7 @@ int shash(const string& s, int& previous_shash, unsigned int start_pos = 0, int 
 
 string inverse_shash (int num, int len);
 
-int minimiserrc(const string &node,const int &minimisersize,HashMap* hm);
+int minimiserrc(const string &node,const int &minimisersize);
 
 int minbutbiggerthan(int leftmin, int rightmin, const string &namebucket);
 
@@ -81,13 +81,13 @@ class graph
 
 		uint64_t getkey(string str);
 		uint64_t getkeyrevc(string str);
-		uint64_t becompacted(uint64_t nodeindice, int min, unsigned char *,HashMap* hm);
+		uint64_t becompacted(uint64_t nodeindice, int min, unsigned char *);
 		int weight();
 		void addvertex(const string str);
         void addleftmin(int mini);
         void addrightmin(int mini);
 		void debruijn();
-		void compressh(int min=-1,HashMap* hm=NULL);
+		void compressh(int min=-1);
 		void compress();
 		void importg(const char *name);
 		void print(const char *name);

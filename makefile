@@ -1,5 +1,5 @@
 CC=g++ 
-CFLAGS=-W -Wall -O4 -std=c++0x -march=native
+CFLAGS=-Werror -Wall -O4 -std=c++0x -march=native
 LDFLAGS=
 
 
@@ -19,25 +19,22 @@ EXEC=bcalm
 
 all: $(EXEC)
 
-bcalm: main.o lm.o ograph.o debug.o
+bcalm: main.o lm.o ograph.o debug.o input.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 debug.o: debug.cpp ograph.h
 	$(CC) -o $@ -c $< $(CFLAGS)
 
-main.o: main.cpp lm.h ograph.h debug.h
+main.o: main.cpp lm.h ograph.h debug.h input.h
 	$(CC) -o $@ -c $< $(CFLAGS)
 
 ograph.o: ograph.cpp
 	$(CC) -o $@ -c $< $(CFLAGS)
 
-lm.o: lm.cpp ograph.h
+lm.o: lm.cpp ograph.h input.h
 	$(CC) -o $@ -c $< $(CFLAGS)
 
-script: scheck.o ograph.o
-	$(CC) -o $@ $^ $(LDFLAGS)
-
-scheck.o:scheck.cpp ograph.h
+input.o: input.cpp ograph.h
 	$(CC) -o $@ -c $< $(CFLAGS)
 
 clean:
