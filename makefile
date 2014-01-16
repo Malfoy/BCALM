@@ -1,5 +1,5 @@
 CC=g++ 
-CFLAGS=-Werror -Wall -O4 -std=c++0x -march=native
+CFLAGS= -Wall -O4 -std=c++0x -march=native
 LDFLAGS=
 
 
