@@ -5,9 +5,6 @@ de Bruijn CompAction in Low Memory
 
 Possible use :
 
-./bcalm
-launch a test ( for now it does not work and say corrupted double linked list)
-
 ./bcalm input.dot
 detect k and do the compaction with m=10 in compacted.dot
 
