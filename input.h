@@ -14,7 +14,7 @@ string next_input(const int k);
 
 class InputDot{
 	
-uint64_t size, buffer_size, nb_buffers, index;
+uint64_t size, buffer_size, nb_buffers, index,indexb;
 string buffer,kmer;
 ifstream in;
 
