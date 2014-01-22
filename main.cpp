@@ -103,7 +103,7 @@ int main(int argc, char ** argv)
 		string input(argv[1]);
 		string output(argv[2]);
 		int m(atoi(argv[3])/2);
-		if(testulimit(pow(4,m)+100))
+		if(testulimit(pow(4,m)+50))
 		{
 			int k(detectk(input));
 			if(k<=2*m){
