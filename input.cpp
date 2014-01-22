@@ -58,7 +58,6 @@ string InputDot::next_input(const int k){
 		kmer=buffer.substr(index,k);
 		index += k+2;
 	}
-	cout<<kmer<<endl;
 	return kmer;
 	
 }
