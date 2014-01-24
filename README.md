@@ -46,8 +46,8 @@ License
 BCALM's license is BSD with Attribution. In informal words, any use is permitted as long as it acknowledges us. For example with a citation to:
 
     @inproceedings{reprdbg14,
-    author = {Chikhi, R. and Limasset, A. and Jackman, S. and Simpson, J. and Medvedev}, P.},
-    title = "{On the representation of de Bruijn graphs}",
+    author = {Chikhi, R. and Limasset, A. and Jackman, S. and Simpson, J. and Medvedev, P.},
+    title = {{On the representation of de Bruijn graphs}},
     booktitle = {RECOMB},
     publisher = {Springer},
     year = 2014,
