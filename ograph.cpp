@@ -378,7 +378,7 @@ uint64_t graph::becompacted(uint64_t nodeindice, int min, unsigned char *type){
 			if(neighbor[sonindice].nbtype(3)+neighbor[sonindice].nbtype(4)==1 && sonindice!=nodeindice)
 				return sonindice;
 		}
-		if(four==1){
+		else{
 			uint64_t sonindice(neigh.gtype(4));
 			*type=4;
 			if(neighbor[sonindice].nbtype(1)+neighbor[sonindice].nbtype(2)==1 && sonindice!=nodeindice)
@@ -542,7 +542,7 @@ void graph::compact(uint64_t nodeindice,uint64_t with, unsigned char c){
 		for(auto i(0);i<8;i++){
 			indice=neighbor[nodeindice].list[i].first;
 			type=neighbor[nodeindice].list[i].second;
-			neighbor[indice].removep(nodeindice,1);
+			neighbor[indice].remove(nodeindice);
 			if(type==1){
 				neighbor[with].add(indice,1);
 				neighbor[indice].add(with,4);
