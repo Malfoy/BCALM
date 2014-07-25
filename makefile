@@ -9,8 +9,8 @@ LDFLAGS=-pg
 endif
 
 ifeq ($(valgrind),1)
-CFLAGS=-std=c++0x -O4 -g
-LDFLAGS=-g
+CFLAGS=-std=c++0x -g -O0
+LDFLAGS=-g 
 endif
 
 

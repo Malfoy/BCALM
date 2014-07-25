@@ -62,16 +62,23 @@ int shash(const string& s, int& previous_shash, unsigned int start_pos, int leng
         retval +=  (num  << (2*(pos + offset - start_pos))); // actually compute the reverse 2bit representation now
 	}
     previous_shash = retval;
+
+    // debug
+    // printf("shash %s -> %0X\n",s.substr(start_pos,length).c_str(),retval);
 	return retval;
 }
 
 string inverse_shash(int num, int len){
 	string s(len, 'X');
-	for (int pos = len - 1; pos >= 0; pos--){
+    int original_num = num;
+	for (int pos = 0; pos < len; pos++){
 		int val = num % 4;
 		num = (num - val) / 4;
-		s[pos] = num2nt(val,pos);
+		s[pos] = num2nt(val);
 	}
+
+    // debug
+    // printf("inverse shash %0X -> %s\n", original_num, s.c_str());
 	return s;
 }
 

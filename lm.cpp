@@ -64,7 +64,7 @@ bool nextchar(char * c){
 // (other behavior: just count m-mers)
 void sortentry(string namefile, const int k, const int m, bool create_buckets, bool m_mer_count){
 	int numbersuperbucket(pow(4,m));
-	ofstream out[5000];
+	ofstream out[2100];
     ofstream checkpoint;
     InputDot ind;
     if (create_buckets)
