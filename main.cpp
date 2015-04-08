@@ -56,19 +56,16 @@ void test()
 int main(int argc, char ** argv)
 {
 	int sys(0);
-	if(argc==1)
-	{
+	if(argc==1){
         printf("usage: <input> [output.dot] [minimizer length]\n");
-        printf("Note: default behavior (minimizer length = 10) requires that you type 'ulimit -n 1100' in your shell prior to running bcalm, else the software will crash\n");
+        printf("Note: maximum minimizer length (minimizer length = 10) requires that you type 'ulimit -n 1100' in your shell prior to running bcalm, else the software will crash\n");
         exit(1);
 	}
-	if(argc==2)
-	{
+	if(argc==2){
 		string input(argv[1]);
 		string output("compacted.dot");
-		int m(5);
-		if(testulimit(1100))
-		{
+		int m(4);
+		if(testulimit(300)){
 			int k(detectk(input));
 			if(k<=2*m){
 				cout<<"k too low"<<endl;
@@ -80,13 +77,11 @@ int main(int argc, char ** argv)
 		cout<<"ulimit too low"<<endl;
 		}
 	}
-	if(argc==3)
-	{
+	if(argc==3){
 		string input(argv[1]);
 		string output(argv[2]);
-		int m(5);
-		if(testulimit(1100))
-		{
+		int m(4);
+		if(testulimit(300)){
 			int k(detectk(input));
 			if(k<=2*m){
 				cout<<"k too low"<<endl;
@@ -98,8 +93,7 @@ int main(int argc, char ** argv)
 		cout<<"ulimit too low"<<endl;
 		}
 	}
-	if(argc==4)
-	{
+	if(argc==4){
 		string input(argv[1]);
 		string output(argv[2]);
 		int m(atoi(argv[3])/2);

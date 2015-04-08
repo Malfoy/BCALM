@@ -28,8 +28,7 @@ using namespace std;
 // keep largest bucket seen, disregarding small ones
 unsigned long nb_elts_in_largest_bucket = 10000;
 
-string minimizer2string(int input_int)
-{
+string minimizer2string(int input_int){
     long long i = input_int;
     string str = to_string(i);
     assert(str.size() <= MINIMIZER_STR_SIZE);
@@ -64,26 +63,30 @@ bool nextchar(char * c){
 // (other behavior: just count m-mers)
 void sortentry(string namefile, const int k, const int m, bool create_buckets, bool m_mer_count){
 	int numbersuperbucket(pow(4,m));
-	ofstream out[2100];
+	ofstream out[1100];
     ofstream checkpoint;
-    InputDot ind;
+//    InputDot ind;
     if (create_buckets)
     {
     	for(long long i(0);i<numbersuperbucket;i++)
     		out[i].open(".bcalmtmp/z"+to_string(i),ofstream::app);
     }
 
-    ind.init_input(namefile,k);
+//    ind.init_input(namefile,k);
+	ifstream in(namefile);
+	string kmer,waste;
 
     while (1)
     {
-        string kmer = ind.next_input(k);
+//        string kmer = ind.next_input(k);
+		getline(in,kmer,' ');
+		getline(in,waste);
 
-        if (kmer == "")
+		if (kmer.size()<k){
             break;
-
-        if (m_mer_count)
-        {
+		}
+		transform(kmer.begin(),kmer.end(),kmer.begin(),::tolower);
+        if (m_mer_count){
             count_m_mers(kmer, 2*m, k);
             continue;
         }
@@ -171,8 +174,7 @@ void createbucket(const string superbucketname,const int m){
 	in.seekg(0);
 
 	for(int j(0);j<=numberbuffer;j++){
-		if(j==numberbuffer)
-        {
+		if(j==numberbuffer){
 			if(size-numberbuffer*buffsize-1!=-1){
 				buffer=readn(&in,size-numberbuffer*buffsize-1);
 				buffer+=";";

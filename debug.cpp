@@ -30,9 +30,12 @@ int detectk(const string& input){
 	ifstream in(input);
 	string line;
 	if(in){
-		getline(in,line);
+//		getline(in,line);
+		getline(in,line,' ');
 	}
-	return(line.size()-1);
+//	return(line.size()-1);
+	return(line.size());
+
 }
 
 bool testulimit(int l)
