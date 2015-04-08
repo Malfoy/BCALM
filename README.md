@@ -27,7 +27,9 @@ Input
 Each line in the input file is a distinct k-mer in upper-case, ending with his counting (not required). Here is a sample input.dot:
 
 AATCGATCG 3
+
 ATCGATCGT 33
+
 TCGATCGTA 645
 
 It is the typical ouput of DSK with the dsk2ascii script (see http://minia.genouest.org/dsk/)
