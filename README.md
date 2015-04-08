@@ -37,7 +37,7 @@ It is the typical ouput of DSK with the dsk2ascii script (see http://minia.genou
 Output
 =====
 
-Each line is a simple path of the de Bruijn graph, in a similar format as the input.
+Each line is a simple path of the de Bruijn graph, in lowercase.
 
 License
 =======
