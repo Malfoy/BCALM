@@ -11,7 +11,7 @@ compact input with l=8 in compacted.dot
     ./bcalm input output.dot
 compact input with l=8 in output.dot
 
-    ./bcalm input.dot output.dot 10
+    ./bcalm input output.dot 10
 compact input with l=10 in output.dot
 
 
