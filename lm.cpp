@@ -14,7 +14,6 @@
 #include <chrono>
 
 #include "lm.h"
-#include "input.h"
 
 /*
  * Constuct the compacted de bruijn graph from list of distinct kmers
@@ -82,17 +81,18 @@ void sortentry(string namefile, const int k, const int m, bool create_buckets, b
 		getline(in,kmer,' ');
 		getline(in,waste);
 
-		if (kmer.size()<k){
+		if (kmer.size()<(unsigned int)k){
             break;
 		}
 		transform(kmer.begin(),kmer.end(),kmer.begin(),::tolower);
+
         if (m_mer_count){
             count_m_mers(kmer, 2*m, k);
             continue;
         }
 
         int middlemin, leftmostmin, rightmostmin, min;
-        
+
         middlemin=minimiserrc(kmer.substr(1,k-2),2*m);
         leftmostmin=minimiserrc(kmer.substr(0,2*m),2*m);
         rightmostmin=minimiserrc(kmer.substr(kmer.size()-2*m,2*m),2*m);
@@ -401,7 +401,7 @@ void compactbucket(const int& prefix,const int& suffix,const int k,const char *n
 	g.compressh(stoi(fullname));
 	ifstream fichiertagin(".bcalmtmp/tags");
     int node_index = 0;
-    
+
 	for(auto it(g.nodes.begin());it!=g.nodes.end();it++)
     {
 		if(it->size()!=0)

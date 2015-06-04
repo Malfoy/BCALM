@@ -19,23 +19,21 @@ EXEC=bcalm
 
 all: $(EXEC)
 
-bcalm: main.o lm.o ograph.o debug.o input.o
+bcalm: main.o lm.o ograph.o debug.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 debug.o: debug.cpp ograph.h
 	$(CC) -o $@ -c $< $(CFLAGS)
 
-main.o: main.cpp lm.h ograph.h debug.h input.h
+main.o: main.cpp lm.h ograph.h 
 	$(CC) -o $@ -c $< $(CFLAGS)
 
 ograph.o: ograph.cpp
 	$(CC) -o $@ -c $< $(CFLAGS)
 
-lm.o: lm.cpp ograph.h input.h
+lm.o: lm.cpp ograph.h
 	$(CC) -o $@ -c $< $(CFLAGS)
 
-input.o: input.cpp ograph.h
-	$(CC) -o $@ -c $< $(CFLAGS)
 
 clean:
 	rm -rf *.o

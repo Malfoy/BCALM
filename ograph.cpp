@@ -14,7 +14,7 @@ static inline int nt2num(char c){
     // 'a' -> 0, 'c' -> 1; 'g' -> 2, 't' -> 3
     // inspired by G. Rizk
     char d = (c >> 1) & 3;
-    if (d > 1) 
+    if (d > 1)
         d ^= 1;
     return d;
 }
@@ -70,15 +70,11 @@ int shash(const string& s, int& previous_shash, unsigned int start_pos, int leng
 
 string inverse_shash(int num, int len){
 	string s(len, 'X');
-    int original_num = num;
 	for (int pos = 0; pos < len; pos++){
 		int val = num % 4;
 		num = (num - val) / 4;
 		s[pos] = num2nt(val);
 	}
-
-    // debug
-    // printf("inverse shash %0X -> %s\n", original_num, s.c_str());
 	return s;
 }
 
