@@ -5,14 +5,14 @@ de Bruijn CompAction in Low Memory
 
 Possible use :
 
-    ./bcalm input.dot
-compact input.dot with l=8 in compacted.dot
+    ./bcalm input
+compact input with l=8 in compacted.dot
 
-    ./bcalm input.dot output.dot
-compact input.dot with l=8 in output.dot
+    ./bcalm input output.dot
+compact input with l=8 in output.dot
 
     ./bcalm input.dot output.dot 10
-compact input.dot with l=10 in output.dot
+compact input with l=10 in output.dot
 
 
 
@@ -24,12 +24,10 @@ and 1100 for l=10 (`ulimit -n 1100`).
 Input
 =====
 
-Each line in the input file is a distinct k-mer in upper-case, ending with his counting (not required). Here is a sample input.dot:
+Each line in the input file is a distinct k-mer in upper-case, ending with his counting (not required). Here is a sample input:
 
 AATCGATCG 3
-
 ATCGATCGT 33
-
 TCGATCGTA 645
 
 It is the typical ouput of DSK with the dsk2ascii script (see http://minia.genouest.org/dsk/)
@@ -37,7 +35,10 @@ It is the typical ouput of DSK with the dsk2ascii script (see http://minia.genou
 Output
 =====
 
-Each line is a simple path of the de Bruijn graph, in lowercase.
+Each line is a simple path of the de Bruijn graph, in lowercase. Here is a sample output:
+
+aatcgatcgta;
+
 
 License
 =======
