@@ -1,3 +1,5 @@
+Note : BCALM2 is available at https://github.com/GATB/bcalm
+
 bcalm
 =====
 
